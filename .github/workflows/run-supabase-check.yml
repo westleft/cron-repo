@@ -1,0 +1,30 @@
+name: Run Supabase API
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"  # 每週一 UTC 時間 02:00 執行（台灣時間 10:00）
+  workflow_dispatch: # 允許手動觸發
+
+jobs:
+  run-rust:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Run script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: cargo run --release
+        continue-on-error: false
